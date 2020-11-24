@@ -6,11 +6,11 @@
       <option v-for="country in countries" :key="country.alpha3code" :value="country">{{country.name}}</option>
     </select>
 
-    <country-detail v-if="selectedCountry" :country="selectedCountry"></country-detail>
+    <country-detail v-if="selectedCountry" :country="selectedCountry" :neighbouringCountries="neighbouringCountries()"></country-detail>
 
-    <button v-on:click="addCountryToFaves">Add Country to favourites</button>
+    <button v-if="!favouriteCountries.includes(selectedCountry)" v-on:click="addCountryToFaves">Add Country to favourites</button>
 
-    <favourite-countries ></favourite-countries>
+    <favourite-countries :favouriteCountries="favouriteCountries"></favourite-countries>
 </div>
 
 </template>
@@ -39,10 +39,15 @@ export default {
       fetchCountry: function(){
         fetch("https://restcountries.eu/rest/v2/all")
         .then(response => response.json())
-        .then(country => this.countries = country)
+        .then(data => this.countries = data)
       },
       addCountryToFaves: function(){
-        self.favouriteCountries.push(selectedCountry)
+        this.favouriteCountries.push(this.selectedCountry)
+      },
+      neighbouringCountries: function(){
+        return this.countries.filter((country) => {
+          return this.selectedCountry.borders.includes(country.alpha3Code);
+        });
       }
     }
 }
